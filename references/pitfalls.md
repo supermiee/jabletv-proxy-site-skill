@@ -54,3 +54,9 @@ qTranslate 类站点 /zh/ 前缀会连变体方括号一起翻译（[Reducing Mo
 ## 10. 中转端点 400 = 白名单缺域名
 SupJav 这类会轮换播放商域名的站点，看到 `/api/<site>/play?u=https%3A%2F%2F<陌生域>`
 返回 400 即为媒体白名单缺失：优先 TVBOX_<SITE>_RELAY_HOSTS 追加，稳定后再进代码默认表。
+
+## 11. challenge-platform 不是挑战标记
+`/cdn-cgi/challenge-platform/scripts/jsd/main.js` 是 Cloudflare 的 RUM 信标，
+已通过验证的页面也会长期携带。把它当作挑战标记会让所有就绪文档被判为
+挑战并无限升级浏览器。挑战识别只认 `cf-chl-` 与本地化标题
+（Just a moment / 请稍候 / 請稍候 / お待ちください）。

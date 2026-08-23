@@ -1,6 +1,7 @@
 ---
 name: jabletv-proxy-new-site
-description: 在 jabletv-proxy 工程中开发新站点适配的标准流程。当需要为该工程新增上游站点（Spider / Adapter / 注册装配 / 测试 / 端到端验证）时使用。按本流程执行，即使面对结构完全未知的站点也能完成从调研到上线的全部工作。
+description: 在 jabletv-proxy 工程中开发新站点适配的标准流程。当需要为该工程新增上游站点（Spider / Adapter / 注册装配 / 测试 / 端到端验证）时使用——按本流程执行，面对结构未知的站点也能完成从调研到上线。不适用于纯缺陷修复、既有站点的配置热更新或非本工程的爬虫项目。
+version: 1.0.0-supjav
 ---
 
 # jabletv-proxy 新站点开发
@@ -56,8 +57,8 @@ Spider 出中立记录，Adapter 做 CMS 映射，HTTP 层不碰上游 HTML。
 
 ## P1 站点包骨架
 
-文件职责、Spider 七个必备方法签名、access.py 三态 ready_probe、
-Adapter 最小差异面 —— 见 [testing-harness.md](references/testing-harness.md) 附录，
+`spider.py` / `adapter.py` / `access.py` / `categories.py` / `labels.py?` / `__init__.py`
+六件套的职责与必备 API 见 [testing-harness.md](references/testing-harness.md) 附录，
 代码范本直接对照 `sites/supjav/spider.py` 与 `adapter.py`。
 
 ## P2 设计决策表（逐条落地）
@@ -70,8 +71,9 @@ Adapter 最小差异面 —— 见 [testing-harness.md](references/testing-harne
 
 **数据层**
 - [ ] vod_id 白名单式严格归一（如纯数字 `\d{1,12}`），只信任自家列表解析产物。
-- [ ] 列表备注 = 变体标签（若有）＋可选日期；标签词表双语收录且长词优先；
-      只取标题开头连续方括号块。
+- [ ] 列表备注 = **仅变体标签**（无标签则留空）。日期不进卡片墙——如需在详情展示
+      由 detail 流程自行决定（范本注释见 `supjav/spider.py` 的 remark 组装处）。
+      标签词表双语收录且长词优先防子串误吞；只取标题开头连续方括号块。
 - [ ] 有多语言前缀时默认中文路由；前缀会连方括号一起翻译。
 
 **播放层**

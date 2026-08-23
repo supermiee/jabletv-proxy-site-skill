@@ -69,9 +69,10 @@ curl -sS -m 45 -o /dev/null -w "origins: %{http_code}\n" "https://api.allorigins
 curl -sS -m 45 -o /dev/null -w "codetabs: %{http_code}\n" "https://api.codetabs.com/v1/proxy?quest=$ENC"
 ```
 
-判读：第三方全部非 2xx 且本机 200 → **绑定解析方网络**，该站跨网络必须 relay
-（README 与 .env 注释都要写明）；第三方也 200 → direct 可用。
-注意三个服务自身偶发 522/超时，需重测确认而非单次定论。
+判读优先级：三个第三方全非 2xx 且本机 200 → **绑定解析方网络**，该站跨网络
+必须 relay（README 与 .env 注释都要写明）；第三方也 200 → direct 可用。
+注意：r.jina.ai 自身可能被目标 CF 拦截（返回其包装页），此时以 codetabs 为准；
+任一服务偶发 522/超时需重测确认，勿以单次结果定论。
 
 **镜像健康检查**：每个候选镜像走一次完整列表请求，
 `curl -sS -m 20 -L -w "%{http_code} %{url_effective}\n"`——

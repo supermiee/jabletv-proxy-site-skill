@@ -19,7 +19,8 @@ GET /api/{site}?ac=detail&t=<type_id>&pg=<页码>&f=<URL编码JSON>
 ```
 
 `dispatch_cms` 把 `t/pg/f` 原样交给 `adapter.category_content(tid, pg, filter_data)`；
-**校验与拼装完全是 Adapter 的责任**。
+**校验与拼装完全是 Adapter 的责任**。部分客户端版本会传空串或 `{}`——
+解析函数须兼容（范本 missav/_selected_path 对 falsy 直接返回空集）。
 
 ## 2. 字段参考
 

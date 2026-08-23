@@ -20,9 +20,12 @@ class XxxSession:
 
     def get(self, url, **kw):
         self.get_calls.append(url)
-        if "resolver" in url:                       # 解析端点按 token 路由
+        # 按本站解析端点特征路由（supjav 是 supjav.php；新站点替换为自己的特征）
+        if "supjav.php" in url:
             return SimpleNamespace(text=self.embed_bodies.get(url, ""))
-        return SimpleNamespace(text=self.playlist_bodies.get(url, ""))  # 清单/分片
+        if ".m3u8" in url:
+            return SimpleNamespace(text=self.playlist_bodies.get(url, ""))
+        return SimpleNamespace(text="")
 ```
 
 要点：`challenge_hosts` 抛 BrowserChallengeError（模拟人工接管语义）、

@@ -26,3 +26,7 @@ Claude Code：复制到 `.claude/skills/jabletv-proxy-new-site/`
 | `references/checklist.md` | 验收命令、覆盖校验脚本、性能计时模板、发布顺序 |
 
 范例实现：jabletv-proxy 仓库 `sites/supjav/`。
+
+---
+
+最后验证：2026-08-23 · 对应 jabletv-proxy commit `d18dd33` · skill version 1.0.0-supjav
