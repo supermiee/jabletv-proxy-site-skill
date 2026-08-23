@@ -54,10 +54,3 @@ qTranslate 类站点 /zh/ 前缀会连变体方括号一起翻译（[Reducing Mo
 ## 10. 中转端点 400 = 白名单缺域名
 SupJav 这类会轮换播放商域名的站点，看到 `/api/<site>/play?u=https%3A%2F%2F<陌生域>`
 返回 400 即为媒体白名单缺失：优先 TVBOX_<SITE>_RELAY_HOSTS 追加，稳定后再进代码默认表。
-
-## 11. Caddy 反代运维
-- reverse_proxy 先于 file_server 生效：静态文件要用 handle <path> 包住。
-- validate 必须 --adapter caddyfile。
-- reload 失败时旧内存配置仍在服务，磁盘文件可能已被写坏——
-  改配置前先备份，改完 cat 对比 + 三端点验证。
-- 测试管道务必 set -o pipefail，防止 tail 吞掉 unittest 退出码。

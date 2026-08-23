@@ -61,4 +61,5 @@ done
 2. push GitHub
 3. NAS：git pull → stop.sh → start.sh
 4. 公网冒烟：/config.json 样式、各站首页卡片、一条详情+分片 200
-5. README/.env.example 若有变量增删已同步
+5. README/.env.example/tvbox_config.json 已同步（含 style.ratio）
+6. 海报跟随 play_mode 的两条断言在用例集中
