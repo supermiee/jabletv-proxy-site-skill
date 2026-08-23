@@ -59,6 +59,74 @@ with sync_playwright() as p:
    - 播放链路：按钮 token → 解析接口 → 打包脚本还是明文？**签名是否绑定网络身份？**
    - 多语言前缀：有没有 `/zh/` 一类路径？前缀会不会连变体方括号一起翻译？
 
+## Phase 1 — 站点包骨架
+
+```
+sites/<site>/
+├── __init__.py     # 一行模块文档："XX TVBox source."
+├── categories.py   # 分组表 + 路由映射（分类页与合法性校验共用）
+├── labels.py       # 可选：标题前缀 → 客户端标签（参考 missav/supjav 的 labels.py）
+├── spider.py       # 上游客户端 + HTML 解析 → 中立记录
+├── access.py       # BrowserPolicy 静态白名单 + ready_probe
+└── adapter.py      # BaseTVBoxAdapter 子类，只实现差异
+```
+
+**categories.py 约定**（参照 `sites/supjav/categories.py`）：分组四元组
+`(type_id, 中文名, path, query)`，`query` 为空串表示无参数；派生 `ROUTES` 映射，
+未知 `tid` 回落到默认分组。
+
+**access.py 必备**：
+
+```python
+def _is_ready(html: str, url: str) -> bool: ...
+
+def access_policy(mode: str) -> BrowserPolicy:
+    return BrowserPolicy(
+        key="<site>", mode=mode,
+        reusable_hosts=frozenset(MIRRORS),
+        allowed_hosts=frozenset({*MIRRORS,
+            "cloudflare.com", "challenges.cloudflare.com"}),
+        ready_probe=_is_ready,
+    )
+```
+
+`_is_ready` 必须能三分：挑战页（交给共享检测处理）/ 合法空结果 / 就绪文档。
+
+**Spider 必备 API**（签名固定，Adapter 与离线测试都依赖）：
+
+```python
+class XxxSpider:
+    def __init__(self, session, page_size=24): ...
+    def get_categories(self) -> list[dict]                    # [{"type_id","type_name"}]
+    def home(self) -> list[VideoCard]
+    def category(self, tid, page=1) -> VideoPage
+    def search(self, keyword, page=1) -> VideoPage
+    def video(self, vod_id, *, select_quality=True) -> VideoDetail
+    def detail(self, vod_id) -> VideoDetail                   # 兼容包装 → video()
+    def player(self, vod_id) -> dict                          # 兼容包装 → {"url","parse","header"}
+```
+
+内部约定：镜像回退统一走 `_get_mirror_html(path, validator)`——挑战异常原样上抛
+（保住人工接管页面）、校验失败转 `UpstreamDocumentInvalidError`、全部失败
+`UpstreamTransportError`；分页页码取「显式链接最大值」且整页结果视为仍有下一页。
+
+**adapter.py 最小差异**（其余全部继承基类）：
+
+```python
+class XxxAdapter(BaseTVBoxAdapter):
+    def __init__(self, spider, cache_ttl=CACHE_TTL, page_size=PAGE_SIZE,
+                 stale_ttl=0, relay_base_url="", play_mode="direct"):
+        super().__init__(cache_ttl, page_size, stale_ttl=stale_ttl,
+                         site_key="<site>", relay_base_url=relay_base_url,
+                         play_mode=play_mode)
+        self.spider = spider
+
+    def home_content(self): ...        # class + filters + list[:page_size]
+    def category_content(self, tid, pg="1", filter_data=""): ...   # filter 值必须过白名单
+    def search_content(self, keyword, pg="1"): ...
+    def cms_detail_content(self, vod_id): ...                      # 媒体/海报路由由基类按 play_mode 处理
+```
+
 ## Phase 2 设计决策表
 
 - [ ] access.py 只放真实文档主机 + cloudflare.com/challenges.cloudflare.com；
@@ -104,3 +172,15 @@ config.py 增加 `TVBOX_<SITE>_ACCESS_MODE` 与 `TVBOX_<SITE>_PLAY_MODE`；
 把站点加进 `tests/live/e2e_test.py` 的 run_site_tests 序列；
 性能验收用 references/checklist.md 的分段计时模板（detail/master/child/segment 四段），
 播放起步预算参考：detail ≤3s，重复清单 ≤0.5s（微缓存命中）。
+
+## Phase 6 文档同步
+
+- `README.md`：只更新「站点能力」表与新增环境变量行，保持快速开始导向；
+  行为性结论一句话带过即可。
+- `AGENTS.md`：记录与其他站点不同的事实性结论（如某 CDN 签名绑定网络、
+  某镜像已停放成广告域），供后续会话直接引用。
+- `deploy/fnos/.env.example`：新增变量必须同步，并跑覆盖校验脚本
+  （见 references/checklist.md）。
+- `tvbox_config.json`：静态示例的 style.ratio 与站点清单对齐注册表生成结果。
+
+完成后按 references/checklist.md 的「发布顺序」执行验证与推送。
