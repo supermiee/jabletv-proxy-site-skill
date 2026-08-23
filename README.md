@@ -21,6 +21,7 @@ Claude Code：复制到 `.claude/skills/jabletv-proxy-new-site/`
 | `SKILL.md` | 六阶段流程 + 接入层/数据层/播放层/展示层设计决策表 |
 | `references/research-playbook.md` | Phase 0 交付物模板、证据采集配方、网络绑定四格实测 |
 | `references/testing-harness.md` | 假会话脚手架代码、错误升级矩阵、每站必测用例清单 |
+| `references/client-contract.md` | FongMi 菜单与筛选项契约、规划准则、四站对照 |
 | `references/pitfalls.md` | 实证踩坑清单（CDN 签名绑定、Turnstile 时序、镜像健康度…） |
 | `references/checklist.md` | 验收命令、覆盖校验脚本、性能计时模板、发布顺序 |
 

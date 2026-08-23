@@ -15,6 +15,7 @@ description: 在 jabletv-proxy 工程中开发新站点适配的标准流程。�
 | [references/research-playbook.md](references/research-playbook.md) | Phase 0 调研交付物模板 + 证据采集配方 + 网络绑定判定 |
 | [references/testing-harness.md](references/testing-harness.md) | 假会话测试脚手架代码模板 + 每站必测用例清单 + 错误升级矩阵 |
 | [references/pitfalls.md](references/pitfalls.md) | 全程实证踩坑清单（先读一遍再动手） |
+| [references/client-contract.md](references/client-contract.md) | 客户端菜单(class)/筛选(filters)契约与规划准则 |
 | [references/checklist.md](references/checklist.md) | 验收命令、性能计时模板、发布顺序 |
 
 ## 项目架构速览
@@ -82,8 +83,8 @@ Adapter 最小差异面 —— 见 [testing-harness.md](references/testing-harne
 
 **展示层**
 - [ ] 海报直出原图；style.ratio = P0 实测的原图宽高比；代理与否跟随 play_mode。
-- [ ] 筛选系统：home_content 输出 `filters`；Adapter 对 filter_data 做 JSON
-      白名单校验（范本 `sites/hanime1/adapter.py:_selected_filters`）。
+- [ ] 菜单与筛选项规划遵循客户端契约——先分清「条目变体 vs 可查询维度」，
+      逐 key 白名单校验（详见 [references/client-contract.md](references/client-contract.md)）。
 - [ ] 搜索输入归一化按站点习惯（范本 `sites/jable/spider.py` 番号连字符补全）。
 
 ## P3 注册与配置
